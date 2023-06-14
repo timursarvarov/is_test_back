@@ -14,7 +14,7 @@ import {
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserService } from './user.service';
 
-@Controller('User')
+@Controller('api/users')
 export class UserController {
   constructor(private UserService: UserService) {}
 
@@ -29,28 +29,32 @@ export class UserController {
   }
 
   // Retrieve Users list
-  @Get('Users')
+  @Get()
   async getAllUser(@Res() res) {
     const Users = await this.UserService.getAllUser();
-    return res.status(HttpStatus.OK).json(Users);
+    return res.status(HttpStatus.OK).json({
+      users: Users,
+    });
   }
 
   // Fetch a particular User using ID
-  @Get('User/:UserID')
-  async getUser(@Res() res, @Param('UserID') UserID) {
-    const User = await this.UserService.getUser(UserID);
+  @Get(':userID')
+  async getUser(@Res() res, @Param('userID') userID) {
+    const User = await this.UserService.getUser(userID);
     if (!User) throw new NotFoundException('User does not exist!');
-    return res.status(HttpStatus.OK).json(User);
+    return res.status(HttpStatus.OK).json({
+      results: User,
+    });
   }
 
   // Update a User's details
   @Put('/update')
   async updateUser(
     @Res() res,
-    @Query('UserID') UserID,
+    @Query('userID') userID,
     @Body() createUserDTO: CreateUserDTO,
   ) {
-    const User = await this.UserService.updateUser(UserID, createUserDTO);
+    const User = await this.UserService.updateUser(userID, createUserDTO);
     if (!User) throw new NotFoundException('User does not exist!');
     return res.status(HttpStatus.OK).json({
       message: 'User has been successfully updated',
@@ -60,8 +64,8 @@ export class UserController {
 
   // Delete a User
   @Delete('/delete')
-  async deleteUser(@Res() res, @Query('UserID') UserID) {
-    const User = await this.UserService.deleteUser(UserID);
+  async deleteUser(@Res() res, @Query('userID') userID) {
+    const User = await this.UserService.deleteUser(userID);
     if (!User) throw new NotFoundException('User does not exist');
     return res.status(HttpStatus.OK).json({
       message: 'User has been deleted',
