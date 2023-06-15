@@ -6,7 +6,7 @@ import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private readonly UserModel: Model<User>) {}
+  constructor(@InjectModel('User') private readonly UserModel: Model<User>) { }
 
   // fetch all Users
   async getAllUser(): Promise<User[]> {
@@ -15,8 +15,8 @@ export class UserService {
   }
 
   // Get a single User
-  async getUser(UserID): Promise<User> {
-    const User = await this.UserModel.findById(UserID).exec();
+  async getUser(email): Promise<User> {
+    const User = await this.UserModel.findOne({ email }).exec();
     return User;
   }
 
@@ -27,11 +27,14 @@ export class UserService {
   }
 
   // Edit User details
-  async updateUser(UserID, createUserDTO: CreateUserDTO): Promise<User> {
-    const updatedUser = await this.UserModel.findByIdAndUpdate(
-      UserID,
+  async updateOrUserByEmailOrCreate(
+    email,
+    createUserDTO: CreateUserDTO,
+  ): Promise<User> {
+    const updatedUser = await this.UserModel.findOneAndUpdate(
+      { email: email },
       createUserDTO,
-      { new: true },
+      { new: true, upsert: true },
     );
     return updatedUser;
   }

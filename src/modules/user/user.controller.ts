@@ -6,8 +6,8 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
-  Put,
   Query,
   Res,
 } from '@nestjs/common';
@@ -33,32 +33,35 @@ export class UserController {
   async getAllUser(@Res() res) {
     const Users = await this.UserService.getAllUser();
     return res.status(HttpStatus.OK).json({
-      users: Users,
+      results: Users,
     });
   }
 
   // Fetch a particular User using ID
-  @Get(':userID')
-  async getUser(@Res() res, @Param('userID') userID) {
-    const User = await this.UserService.getUser(userID);
-    if (!User) throw new NotFoundException('User does not exist!');
+@Get('/user/:email')
+  async getUser(@Res() res, @Param('email') email) {
+    const user = await this.UserService.getUser(email);
+    if (!user) throw new NotFoundException('User does not exist!');
     return res.status(HttpStatus.OK).json({
-      results: User,
+      results: [user],
     });
   }
 
   // Update a User's details
-  @Put('/update')
+  @Patch('')
   async updateUser(
     @Res() res,
-    @Query('userID') userID,
+    @Query('email') email,
     @Body() createUserDTO: CreateUserDTO,
   ) {
-    const User = await this.UserService.updateUser(userID, createUserDTO);
-    if (!User) throw new NotFoundException('User does not exist!');
+    const user = await this.UserService.updateOrUserByEmailOrCreate(
+      email,
+      createUserDTO,
+    );
+    if (!user) throw new NotFoundException('User does not exist!');
     return res.status(HttpStatus.OK).json({
       message: 'User has been successfully updated',
-      User,
+      user,
     });
   }
 

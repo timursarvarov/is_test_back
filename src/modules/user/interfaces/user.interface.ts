@@ -10,7 +10,7 @@ export interface User extends Document {
   readonly location: {
     country: string;
   };
-  readonly email: string;
+  readonly email: { type: string; required: true; unique: true };
   readonly phone: string;
   readonly picture: {
     thumbnail: string;
